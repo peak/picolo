@@ -49,3 +49,22 @@ k := picolo.NewFrom(l, "[more-prefix]")
 k.Errorf("Error message: %v", err)
 //  2017-12-21 23:24:25.267 ERROR [some-prefix] [more-prefix] Error message: No such file or directory
 ```
+
+# Helpers
+
+Use `picolo.LevelFromString` to parse a string into a log level. This can be used like:
+
+```go
+// ...
+l := flag.String("logLevel", "debug", "Log level")
+flag.Parse()
+
+lvl, err := picolo.LevelFromString(*l)
+if err != nil {
+	// Unknown log level
+}
+
+logger := picolo.New(picolo.WithLevel(lvl))
+logger.Infof("One two three")
+// ...
+```

@@ -13,17 +13,19 @@ type Level int
 
 const (
 	// Log levels
-	LevelDebug   Level = iota // Debug level
-	LevelInfo                 // Info level
-	LevelWarning              // Warning level
-	LevelError                // Error level
+	LevelDebug   Level = iota + 1 // Debug level
+	LevelInfo                     // Info level
+	LevelWarning                  // Warning level
+	LevelError                    // Error level
 )
 
 const DefaultTimeFormat = "2006-01-02 15:04:05.000"
 
+var ErrUnknownLevel = fmt.Errorf("Unknown log level")
+
 // Logger is our logger struct
 type Logger struct {
-	mu sync.Mutex // used to synchronize output as well
+	mu   sync.Mutex // used to synchronize output as well
 	opts *options
 }
 
@@ -165,5 +167,21 @@ func (l Level) String() string {
 		return "ERROR"
 	default:
 		return "UNKNOWN"
+	}
+}
+
+// LevelFromString returns the log level from string representation
+func LevelFromString(s string) (Level, error) {
+	switch s {
+	case "debug":
+		return LevelDebug, nil
+	case "info":
+		return LevelInfo, nil
+	case "warning":
+		return LevelWarning, nil
+	case "error":
+		return LevelError, nil
+	default:
+		return 0, ErrUnknownLevel
 	}
 }

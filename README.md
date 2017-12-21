@@ -28,12 +28,12 @@ Always in `YYYY-MM-DD hh:mm:ss.msec`. Can be turned off in options (use `0`)
 # Usage
 
 ```go
-		l := log.New(LevelDebug, os.Stdout) // level, io.Writer, [option ...]
+		l := picolo.New(LevelDebug, os.Stdout) // level, io.Writer, [option ...]
 		l.SetPrefix("[some-prefix]") // optional
 		l.Debugf("Debug message")
 		// TIME LEVEL [some-prefix] Debug message
 
-		k := log.NewFrom(l, "[more-prefix]")
+		k := picolo.NewFrom(l, "[more-prefix]")
 		k.Debugf("Debug message")
 		// TIME LEVEL [some-prefix] [more-prefix] Debug message
 ```

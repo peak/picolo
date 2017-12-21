@@ -16,23 +16,29 @@ Minimalistic logging library.
 
 # Options
 
-	OptDateTime  // Include datetime in log line
-	OptUTC       // Use UTC datetime
+The constructor accepts several options:
 
-	OptDefault = OptDateTime | OptUTC
+    func WithLevel(level Level) Option
+    func WithOutput(output io.Writer) Option
+    func WithPrefix(prefix string) Option
+    func WithTimeFormat(format string, utc bool) Option
 
-# Timestamp
+## Defaults
 
-Always in `YYYY-MM-DD hh:mm:ss.msec`. Can be turned off in options (use `0`)
+If no options are given, the following are assumed.
+
+    WithLevel(LevelInfo)
+    WithOutput(os.Stdout)
+    WithTimeFormat(DefaultTimeFormat, true)
 
 # Usage
 
 ```go
-		l := picolo.New(LevelDebug, os.Stdout) // level, io.Writer, [option ...]
-		l.SetPrefix("[some-prefix]") // optional
+		l := picolo.New(WithPrefix("[some-prefix]")) // constructor with optional prefix
 		l.Debugf("Debug message")
 		// TIME LEVEL [some-prefix] Debug message
-
+		
+		// Create sub-logger, appending prefix
 		k := picolo.NewFrom(l, "[more-prefix]")
 		k.Debugf("Debug message")
 		// TIME LEVEL [some-prefix] [more-prefix] Debug message

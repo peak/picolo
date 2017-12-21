@@ -3,6 +3,7 @@ package picolo
 import (
 	"fmt"
 	"io"
+	"os"
 	"sync"
 	"time"
 )
@@ -12,113 +13,122 @@ type Level int
 
 const (
 	// Log levels
-
 	LevelDebug   Level = iota // Debug level
 	LevelInfo                 // Info level
 	LevelWarning              // Warning level
 	LevelError                // Error level
 )
 
-// Option is a bitmask of options
-type Option int
-
-const (
-	// Bits or'ed together to control what's printed.
-	OptDateTime Option = 1 << iota // Include datetime in log line
-	OptUTC                         // Use UTC datetime
-
-	OptDefault = OptDateTime | OptUTC // Default values if no options given
-)
-
-const (
-	timeFormat = "2006-01-02 15:04:05.000 "
-)
+const DefaultTimeFormat = "2006-01-02 15:04:05.000"
 
 // Logger is our logger struct
 type Logger struct {
-	level  Level
-	opts   Option
-	output io.Writer
-	prefix string
-
-	// mu is used to synchronize output as well as protect the above fields
-	mu sync.Mutex
+	mu sync.Mutex // used to synchronize output as well
+	opts *options
 }
 
-// New creates a new Logger
-func New(lev Level, output io.Writer, opts ...Option) *Logger {
-	var finalOpts Option
+type options struct {
+	level      Level
+	output     io.Writer
+	prefix     string
+	timeFormat string
+	timeUTC    bool
+}
+type Option func(*options)
 
-	if len(opts) == 0 {
-		// No options given, use OptDefault
-		finalOpts = OptDefault
-	} else {
-		for _, o := range opts {
-			finalOpts |= o
+func New(opts ...Option) *Logger {
+	loggerOpts := options{
+		level:      LevelInfo,
+		output:     os.Stdout,
+		timeFormat: DefaultTimeFormat,
+		timeUTC:    true,
+	}
+
+	if len(opts) != 0 {
+		for _, opt := range opts {
+			opt(&loggerOpts)
 		}
 	}
 
-	l := Logger{
-		level:  lev,
-		opts:   finalOpts,
-		output: output,
+	return &Logger{
+		opts: &loggerOpts,
 	}
-	return &l
 }
 
-// Prefix sets the current logger's prefix
-func (l *Logger) SetPrefix(prefix string) {
-	l.mu.Lock()
-	defer l.mu.Unlock()
-
-	if prefix != "" {
-		prefix += " "
+func WithLevel(level Level) Option {
+	return func(o *options) {
+		o.level = level
 	}
-	l.prefix = prefix
+}
+
+func WithOutput(output io.Writer) Option {
+	return func(o *options) {
+		o.output = output
+	}
+}
+
+func WithPrefix(prefix string) Option {
+	return func(o *options) {
+		if prefix != "" {
+			prefix += " "
+		}
+		o.prefix = prefix
+	}
+}
+
+func WithTimeFormat(format string, utc bool) Option {
+	return func(o *options) {
+		o.timeFormat = format
+		o.timeUTC = utc
+	}
 }
 
 // NewFrom creates a new logger from a logger, appending the prefix
 func NewFrom(from *Logger, morePrefix string) *Logger {
-	pf := from.prefix
+	pf := from.opts.prefix
 	if morePrefix != "" {
 		pf += morePrefix + " "
 	}
 
-	l := &Logger{
-		level:  from.level,
-		opts:   from.opts,
-		output: from.output,
+	loggerOpts := options{
 		prefix: pf,
+
+		level:      from.opts.level,
+		output:     from.opts.output,
+		timeFormat: from.opts.timeFormat,
+		timeUTC:    from.opts.timeUTC,
 	}
 
-	return l
+	return &Logger{
+		opts: &loggerOpts,
+	}
 }
 
 func (l *Logger) fmt(level Level, msg string) string {
 	var line string
 
-	if l.opts&OptDateTime > 0 {
-		if l.opts&OptUTC > 0 {
-			line = time.Now().UTC().Format(timeFormat)
+	if l.opts.timeFormat != "" {
+		if l.opts.timeUTC {
+			line = time.Now().UTC().Format(l.opts.timeFormat) + " "
 		} else {
-			line = time.Now().Format(timeFormat)
+			line = time.Now().Format(l.opts.timeFormat) + " "
 		}
 	}
 
-	line += level.String() + " " + l.prefix + msg + "\n"
+	line += level.String() + " " + l.opts.prefix + msg + "\n"
 
 	return line
 }
 
 func (l *Logger) write(level Level, format string, a ...interface{}) {
-	if l.level > level || l.output == nil {
+	if l.opts.level > level || l.opts.output == nil {
 		return
 	}
 
 	formatted := l.fmt(level, fmt.Sprintf(format, a...))
 
 	l.mu.Lock()
-	l.output.Write([]byte(formatted))
+	l.opts.output.Write([]byte(formatted))
 	l.mu.Unlock()
 }
 

@@ -10,8 +10,7 @@ func TestBasic(t *testing.T) {
 	{
 		var b bytes.Buffer
 
-		l := New(LevelDebug, &b, 0)
-		l.SetPrefix("[test-debug]")
+		l := New(WithLevel(LevelDebug), WithTimeFormat("", false), WithPrefix("[test-debug]"), WithOutput(&b))
 		l.Debugf("Debug message")
 		l.Errorf("Error message")
 
@@ -37,7 +36,7 @@ ERROR [test-debug] Error message
 func TestLevel(t *testing.T) {
 	var b bytes.Buffer
 
-	l := New(LevelWarning, &b, 0)
+	l := New(WithLevel(LevelWarning), WithTimeFormat("", false), WithOutput(&b))
 	l.Debugf("Debug message")
 	l.Infof("Info message")
 	l.Warningf("Warning message")

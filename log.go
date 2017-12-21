@@ -13,14 +13,16 @@ type Level int
 
 const (
 	// Log levels
-	LevelDebug   Level = iota + 1 // Debug level
-	LevelInfo                     // Info level
-	LevelWarning                  // Warning level
-	LevelError                    // Error level
+	LevelDebug Level = iota + 1
+	LevelInfo
+	LevelWarning
+	LevelError
 )
 
+// DefaultTimeFormat is our default time format
 const DefaultTimeFormat = "2006-01-02 15:04:05.000"
 
+// ErrUnknownLevel is returned by LevelFromString
 var ErrUnknownLevel = fmt.Errorf("Unknown log level")
 
 // Logger is our logger struct
@@ -36,8 +38,11 @@ type options struct {
 	timeFormat string
 	timeUTC    bool
 }
+
+// Option is our option type
 type Option func(*options)
 
+// New creates a new Logger
 func New(opts ...Option) *Logger {
 	loggerOpts := options{
 		level:      LevelInfo,
@@ -57,18 +62,21 @@ func New(opts ...Option) *Logger {
 	}
 }
 
+// WithLevel sets the log level
 func WithLevel(level Level) Option {
 	return func(o *options) {
 		o.level = level
 	}
 }
 
+// WithOutput sets log output
 func WithOutput(output io.Writer) Option {
 	return func(o *options) {
 		o.output = output
 	}
 }
 
+// WithPrefix sets a log prefix
 func WithPrefix(prefix string) Option {
 	return func(o *options) {
 		if prefix != "" {
@@ -78,6 +86,7 @@ func WithPrefix(prefix string) Option {
 	}
 }
 
+// WithTimeFormat sets the time format. Specify empty time format to disable datetime in logs.
 func WithTimeFormat(format string, utc bool) Option {
 	return func(o *options) {
 		o.timeFormat = format
@@ -130,7 +139,8 @@ func (l *Logger) write(level Level, format string, a ...interface{}) {
 	formatted := l.fmt(level, fmt.Sprintf(format, a...))
 
 	l.mu.Lock()
-	l.opts.output.Write([]byte(formatted))
+	// ignore write errors
+	_, _ = l.opts.output.Write([]byte(formatted))
 	l.mu.Unlock()
 }
 

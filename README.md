@@ -18,10 +18,10 @@ Minimalistic logging library.
 
 The constructor accepts several options:
 
-    func WithLevel(level Level) Option
-    func WithOutput(output io.Writer) Option
-    func WithPrefix(prefix string) Option
-    func WithTimeFormat(format string, utc bool) Option
+    WithLevel(level Level)                     // Set level
+    WithOutput(output io.Writer)               // Set output
+    WithPrefix(prefix string)                  // Set prefix
+    WithTimeFormat(format string, utc bool)    // Set time format and UTC flag
 
 ## Defaults
 
@@ -31,15 +31,21 @@ If no options are given, the following are assumed.
     WithOutput(os.Stdout)
     WithTimeFormat(DefaultTimeFormat, true)
 
+The default time format is `2006-01-02 15:04:05.000`.
+
 # Usage
 
 ```go
-		l := picolo.New(WithPrefix("[some-prefix]")) // constructor with optional prefix
-		l.Debugf("Debug message")
-		// TIME LEVEL [some-prefix] Debug message
-		
-		// Create sub-logger, appending prefix
-		k := picolo.NewFrom(l, "[more-prefix]")
-		k.Debugf("Debug message")
-		// TIME LEVEL [some-prefix] [more-prefix] Debug message
+l := picolo.New() // Use defaults
+l.Infof("Info message")
+// 2017-12-21 22:23:24.256 INFO Info message
+
+l = picolo.New(picolo.WithPrefix("[some-prefix]")) // constructor with optional prefix
+l.Infof("Info message")
+// 2017-12-21 22:23:24.256 INFO [some-prefix] Info message
+
+// Create sub-logger, appending prefix
+k := picolo.NewFrom(l, "[more-prefix]")
+k.Errorf("Error message: %v", err)
+//  2017-12-21 23:24:25.267 ERROR [some-prefix] [more-prefix] Error message: No such file or directory
 ```

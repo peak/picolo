@@ -13,7 +13,7 @@ type Level int
 
 const (
 	// Log levels
-	LevelDebug Level = iota + 1
+	LevelDebug   Level = iota + 1
 	LevelInfo
 	LevelWarning
 	LevelError
@@ -162,6 +162,15 @@ func (l *Logger) Warningf(format string, a ...interface{}) {
 // Errorf logs formatted message in error level
 func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.write(LevelError, format, a...)
+}
+
+func (l *Logger) SetLogLevel(s string) error {
+	level, err := LevelFromString(s)
+	if err != nil {
+		return err
+	}
+	l.opts.level = level
+	return nil
 }
 
 // String returns the log level in string representation

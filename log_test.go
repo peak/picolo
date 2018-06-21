@@ -47,4 +47,14 @@ func TestLevel(t *testing.T) {
 	if !bytes.Equal(golden, result) {
 		t.Errorf("Got: %q Want: %q", string(result), string(golden))
 	}
+
+	l.SetLogLevel("info")
+	l.Debugf("this debug line will be skipped.")
+	l.Infof("info message should be written")
+
+	result = b.Bytes()
+	golden = append(golden, "INFO info message should be written\n"...)
+	if !bytes.Equal(golden, result) {
+		t.Errorf("Got: %q Want: %q", string(result), string(golden))
+	}
 }

@@ -164,6 +164,15 @@ func (l *Logger) Errorf(format string, a ...interface{}) {
 	l.write(LevelError, format, a...)
 }
 
+func (l *Logger) SetLogLevel(s string) error {
+	level, err := LevelFromString(s)
+	if err != nil {
+		return err
+	}
+	l.opts.level = level
+	return nil
+}
+
 // String returns the log level in string representation
 func (l Level) String() string {
 	switch l {

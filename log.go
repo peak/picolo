@@ -13,7 +13,7 @@ type Level int
 
 const (
 	// Log levels
-	LevelDebug   Level = iota + 1
+	LevelDebug Level = iota + 1
 	LevelInfo
 	LevelWarning
 	LevelError

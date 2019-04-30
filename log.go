@@ -1,3 +1,23 @@
+/*
+Package picolo is a simple logger for Go.
+This minimalist package has :
+	- levels
+	- configurable output (io.Writer)
+	- configurable timeformat
+	- prefix for messages
+	- sub loggers
+
+For most of the cases the defaults will be more than enough.
+
+	l := picolo.New() // Use defaults
+	l.Infof("Info message")
+
+The constuctor function picolo.New accepts options to override defaults:
+
+	// constructor with optional prefix
+	l = picolo.New(picolo.WithLevel(LevelDebug), picolo.WithPrefix("[some-prefix]"))
+	l.Infof("Info message")
+*/
 package picolo
 
 import (
@@ -23,7 +43,7 @@ const (
 const DefaultTimeFormat = "2006-01-02 15:04:05.000"
 
 // ErrUnknownLevel is returned by LevelFromString
-var ErrUnknownLevel = fmt.Errorf("Unknown log level")
+var ErrUnknownLevel = fmt.Errorf("unknown log level")
 
 // Logger is our logger struct
 type Logger struct {

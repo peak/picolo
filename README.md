@@ -1,7 +1,7 @@
 ![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Tag](https://img.shields.io/github/tag/peak/picolo.svg)
 [![godoc](https://img.shields.io/badge/godoc-reference-blue.svg)](https://godoc.org/github.com/peak/picolo)
-[![Go Report](https://goreportcard.com/badge/github.com/peak/picolo)](https://goreportcard.com/report/github.com/peak/picolo)
+[![Go Report Card](https://goreportcard.com/badge/github.com/peak/picolo)](https://goreportcard.com/report/github.com/peak/picolo)
 [![Build Status](https://travis-ci.org/peak/picolo.svg?branch=master)](https://travis-ci.org/peak/picolo)
 
 # picolo
